@@ -57,4 +57,41 @@ public class TopologicalSort {
         metrics.stopTimer();
         return order;
     }
+
+
+    public List<Integer> topologicalOrderDFS(Graph graph) {
+        metrics.startTimer();
+        int n = graph.getVertexCount();
+        boolean[] visited = new boolean[n];
+        Stack<Integer> stack = new Stack<>();
+
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                dfsTopo(graph, i, visited, stack);
+            }
+        }
+
+        List<Integer> order = new ArrayList<>();
+        while (!stack.isEmpty()) {
+            order.add(stack.pop());
+        }
+
+        metrics.stopTimer();
+        return order;
+    }
+
+    private void dfsTopo(Graph graph, int v, boolean[] visited, Stack<Integer> stack) {
+        metrics.incrementOperation("DFS_visits");
+        visited[v] = true;
+
+        for (int neighbor : graph.getNeighbors(v)) {
+            metrics.incrementOperation("DFS_edges");
+            if (!visited[neighbor]) {
+                dfsTopo(graph, neighbor, visited, stack);
+            }
+        }
+
+        stack.push(v);
+        metrics.incrementOperation("stack_pushes");
+    }
 }
