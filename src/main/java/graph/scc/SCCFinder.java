@@ -64,4 +64,89 @@ public class SCCFinder {
             sccs.add(scc);
         }
     }
+
+    public List<List<Integer>> findSCCsKosaraju(Graph graph) {
+        metrics.startTimer();
+
+        // Step 1: First DFS for finishing times
+        Stack<Integer> stack = new Stack<>();
+        boolean[] visited = new boolean[graph.getVertexCount()];
+
+        for (int i = 0; i < graph.getVertexCount(); i++) {
+            if (!visited[i]) {
+                dfsFirstPass(graph, i, visited, stack);
+            }
+        }
+
+        // Step 2: Second DFS on transpose graph
+        Arrays.fill(visited, false);
+        List<List<Integer>> sccs = new ArrayList<>();
+
+        while (!stack.isEmpty()) {
+            int v = stack.pop();
+            if (!visited[v]) {
+                List<Integer> scc = new ArrayList<>();
+                dfsSecondPass(graph, v, visited, scc);
+                sccs.add(scc);
+            }
+        }
+
+        metrics.stopTimer();
+        return sccs;
+    }
+
+    private void dfsFirstPass(Graph graph, int v, boolean[] visited, Stack<Integer> stack) {
+        metrics.incrementOperation("DFS_visits");
+        visited[v] = true;
+
+        for (int neighbor : graph.getNeighbors(v)) {
+            metrics.incrementOperation("DFS_edges");
+            if (!visited[neighbor]) {
+                dfsFirstPass(graph, neighbor, visited, stack);
+            }
+        }
+
+        stack.push(v);
+    }
+
+    private void dfsSecondPass(Graph graph, int v, boolean[] visited, List<Integer> scc) {
+        metrics.incrementOperation("DFS_visits");
+        visited[v] = true;
+        scc.add(v);
+
+        for (int neighbor : graph.getReverseNeighbors(v)) {
+            metrics.incrementOperation("DFS_edges");
+            if (!visited[neighbor]) {
+                dfsSecondPass(graph, neighbor, visited, scc);
+            }
+        }
+    }
+
+    public Graph buildCondensationGraph(Graph originalGraph, List<List<Integer>> sccs) {
+        int n = sccs.size();
+        Graph condensation = new Graph(n);
+
+        // Map each original vertex to its SCC index
+        int[] vertexToSCC = new int[originalGraph.getVertexCount()];
+        for (int i = 0; i < sccs.size(); i++) {
+            for (int vertex : sccs.get(i)) {
+                vertexToSCC[vertex] = i;
+            }
+        }
+
+        // Add edges between different SCCs
+        Set<String> addedEdges = new HashSet<>();
+        for (int u = 0; u < originalGraph.getVertexCount(); u++) {
+            for (int v : originalGraph.getNeighbors(u)) {
+                int sccU = vertexToSCC[u];
+                int sccV = vertexToSCC[v];
+                if (sccU != sccV && !addedEdges.contains(sccU + "-" + sccV)) {
+                    condensation.addEdge(sccU, sccV, 1);
+                    addedEdges.add(sccU + "-" + sccV);
+                }
+            }
+        }
+
+        return condensation;
+    }
 }
