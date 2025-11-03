@@ -39,4 +39,11 @@ public class SimpleMetrics implements Metrics {
         startTime = 0;
         endTime = 0;
     }
+
+    public void printMetrics() {
+        System.out.println("Time: " + getElapsedTime() + " ns");
+        for (String op : operationCounts.keySet()) {
+            System.out.println(op + ": " + getOperationCount(op));
+        }
+    }
 }
