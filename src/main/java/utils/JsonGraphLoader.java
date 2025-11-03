@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class JsonGraphLoader {
-    private static final ObjectMapper mapper = new ObjectMapper();
+    static final ObjectMapper mapper = new ObjectMapper();
 
     public static GraphData loadGraphData(String filePath) throws IOException {
         return mapper.readValue(new File(filePath), GraphData.class);
