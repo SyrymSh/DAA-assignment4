@@ -1,5 +1,6 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class GraphData {
@@ -7,7 +8,9 @@ public class GraphData {
     private int n;
     private List<Edge> edges;
     private int source;
-    private String weight_model;
+
+    @JsonProperty("weight_model")  // Map JSON field to Java field
+    private String weightModel;
 
     // Getters and setters
     public boolean isDirected() { return directed; }
@@ -22,8 +25,8 @@ public class GraphData {
     public int getSource() { return source; }
     public void setSource(int source) { this.source = source; }
 
-    public String getWeightModel() { return weight_model; }
-    public void setWeightModel(String weight_model) { this.weight_model = weight_model; }
+    public String getWeightModel() { return weightModel; }
+    public void setWeightModel(String weightModel) { this.weightModel = weightModel; }
 
     public static class Edge {
         private int u;
@@ -48,6 +51,6 @@ public class GraphData {
 
     @Override
     public String toString() {
-        return "GraphData{n=" + n + ", edges=" + edges + ", source=" + source + "}";
+        return "GraphData{n=" + n + ", edges=" + edges + ", source=" + source + ", weightModel=" + weightModel + "}";
     }
 }
